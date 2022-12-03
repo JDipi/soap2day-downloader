@@ -3,10 +3,9 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @author       JDipi
-// @match        https://soap2day.*/*
+// @match        https://soap2day.to/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=soap2day.to
 // @require      https://code.jquery.com/jquery-3.6.1.min.js
-// @require      file:///C:/Users/turtl/OneDrive/Desktop/Projects/Code/USERSCRIPTS/soap2day%20downloader.user.js
 // @grant        GM_xmlhttpRequest
 // @grant        GM_addStyle
 // @grant        GM_download
