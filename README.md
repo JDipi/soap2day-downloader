@@ -1,5 +1,8 @@
 # soap2day-downloader
 
+## Chrome Extension coming soon!!
+
+
 ## By JDipi
 #### Ty to Joey for the motivation
 ___
