@@ -27,6 +27,9 @@ ___
 
 ## Usage
 
+# !!! IMPORTANT !!! this script works best with an adblocker
+
+
 <p align="center">To start, click the download icons on each episode, season, or movie you want to download</p>
 
 <p align="center">
