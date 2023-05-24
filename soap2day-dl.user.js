@@ -1,5 +1,6 @@
 // ==UserScript==
-// @name         soap2day downloader
+// @name         Soap2day Downloader
+// @description  Downloads movies and TV shows from soap2day.to
 // @namespace    http://tampermonkey.net/
 // @version      0.1
 // @author       JDipi
@@ -28,22 +29,20 @@ folder in your default download location, rather than
 just spewing all the media out.
 **************************************************/
 
-
 (function () {
-
   // adds item to storage queue and to the ui
   const addToQueue = (url, name) => {
-    queue = []
-    $(/*html*/`
+    queue = [];
+    $(/*html*/ `
     <li>
       <a href=${url}>${name}</a>
     </li>
     `).appendTo(".dlqueue ul");
-    $('.dlqueue li a').each(function () {
-      queue.push({name: $(this).text(), url: $(this).attr("href")})
-    })
-    GM_setValue("downloadQueue", queue)
-  }
+    $(".dlqueue li a").each(function () {
+      queue.push({ name: $(this).text(), url: $(this).attr("href") });
+    });
+    GM_setValue("downloadQueue", queue);
+  };
 
   // css to make the header of each season work with flex
   $(".panel-body .row .alert-info-ex h4").css({
@@ -92,98 +91,101 @@ just spewing all the media out.
   // onclick for each download btn
   $("a[title~=Add]").on("click", function (e) {
     let episodePageUrl = window.location.origin + $(this).next().attr("href");
-    addToQueue(episodePageUrl, $(this).next().text())
+    addToQueue(episodePageUrl, $(this).next().text());
   });
 
   // download onclick, starts collecting the src urls
-  $('.download').on('click', function (e) {
-    GM_setValue("downloadQueue", queue)
-    GM_setValue("isDownloading", true)
-    window.location.href = queue[0].url
-  })
+  $(".download").on("click", function (e) {
+    GM_setValue("downloadQueue", queue);
+    GM_setValue("isDownloading", true);
+    console.log(GM_getValue("downloadQueue"));
+    queue.forEach((el, i) => {
+      GM_openInTab(el.url, (loadInBackground = true));
+    });
+  });
 
   // clears entire queue
   $("span[title~=Clear]").on("click", function (e) {
-    $(this).parent().prev().children().detach()
-    GM_setValue("downloadQueue", [])
+    $(this).parent().prev().children().detach();
+    queue = [];
+    GM_setValue("downloadQueue", queue);
   });
 
   // adds entire seasons of tv shows to the queue
-  $('.downloadAll').on('click', function (e) {
-    let episodes = $(this).parent().parent().find('div').children()
-    episodes.each(function() {
-      let name = $(this).find('a:not(a svg)').text()
-      let url = window.location.origin + $(this).find('a[href]').attr('href')
-      if (name && url) addToQueue(url, name)
-    })
-  })
+  $(".downloadAll").on("click", function (e) {
+    let episodes = $(this).parent().parent().find("div").children();
+    episodes.each(function () {
+      let name = $(this).find("a:not(a svg)").text();
+      let url = window.location.origin + $(this).find("a[href]").attr("href");
+      if (name && url) addToQueue(url, name);
+    });
+  });
 
   // warning for no browser mode
   if (GM_info.downloadMode !== "browser") {
-    alert(`Please change the Tampermonkey download mode to browser and read the important comment at the top of the script!!!`)
-    return
+    alert(
+      `Please change the Tampermonkey download mode to browser and read the important comment at the top of the script!!!`
+    );
+    return;
   }
 
   // adds download button to movie pages
-  if ($('.panel.panel-info.panel-default > .panel-heading').text().includes("Movies") && !window.location.href.includes("movielist")) {
+  if (
+    $(".panel.panel-info.panel-default > .panel-heading")
+      .text()
+      .includes("Movies") &&
+    !window.location.href.includes("movielist")
+  ) {
     $(/*html*/ `
       <a class="movie-dl" title='Add movie to download queue'>
         <svg width="21" height="21" viewBox="0 0 24 24" style="margin: 10px; transform: scale(1.5); cursor: pointer;" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="square" stroke-linejoin="arcs"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path></svg>
       </a>
-    `).prependTo($('.thumbnail img').parent())
+    `).prependTo($(".thumbnail img").parent());
   }
 
   // onclick for when you wanna download only a movie
-  $('.movie-dl').on('click', function (e) {
-    addToQueue(window.location.href, $('.player-title-bar').text().trim())
-  })
+  $(".movie-dl").on("click", function (e) {
+    e.preventDefault();
+    if ($(".player-title-bar").length) {
+      // this is for if the user is on the actual movie page
+      addToQueue(window.location.href, $(".player-title-bar").text().trim());
+    } else {
+      // this is for if the user is on the site homescreen and presses a button to download a movie
+      addToQueue(
+        `https://soap2day.to${$(this).parent().attr("href")}`,
+        $(this).parent().parent().next().text().trim()
+      );
+    }
+  });
 
   // if the queue exists already, add each item to the ui
-  let queue = GM_getValue('downloadQueue', [])
+  let queue = GM_getValue("downloadQueue", []);
   if (queue.length) {
-    queue.forEach(el => {
-      addToQueue(el.url, el.name)
-    })
+    queue.forEach((el) => {
+      addToQueue(el.url, el.name);
+    });
   }
 
-  // if we're in the process of collecting links
-  if (GM_getValue('isDownloading')) {
+  console.log(GM_getValue("downloadQueue"));
 
+  // if we're in the process of collecting links
+  if (GM_getValue("isDownloading")) {
     // resets downloads for testing purposes
-    if (GM_getValue('downloads').length > $(".dlqueue ul").children().length) {
-      GM_setValue('downloads', [])
+    if (GM_getValue("downloads").length > $(".dlqueue ul").children().length) {
+      GM_setValue("downloads", []);
     }
 
     // wait for the video to load in
-    let video = setInterval(() => {
-      if ($('video.jw-video').length) {
-        let src = $('video.jw-video').attr('src')
-        clearInterval(video)
-        toDownload = {
-          filename: "Soap2day downloads" + "/" + $('.player-title-bar').text().trim(),
-          src
-        }
-
-        // sets a list of download objects
-        let downloads = GM_getValue('downloads', [])
-        GM_setValue('downloads', [...downloads, toDownload])
-
-        // once the links have been gathered for every item in the queue...
-        if (GM_getValue('downloads').length === $(".dlqueue ul").children().length) {
-
-          //download each link
-          GM_getValue('downloads').forEach(el => {
-            GM_download(el.src, el.filename + '.mp4')
-          })
-          GM_setValue('isDownloading', false)
-
-          // else, go to the next url in the queue
-        } else {
-          let next = $($(".dlqueue ul li a")[GM_getValue('downloads').length]).attr('href')
-          if (next) window.location.href = next
-        }
+    let videoFrame = setInterval(() => {
+      if ($("video.jw-video").length) {
+        let src = $("video.jw-video").attr("src");
+        clearInterval(videoFrame);
+        let filename =
+          "Soap2day downloads" + "/" + $(".player-title-bar").text().trim();
+        GM_download(src, filename + ".mp4");
+        window.close();
       }
-    })
+    });
   }
 
   GM_addStyle(/*css*/ `
