@@ -13,6 +13,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_info
+// @grant        GM_openInTab
 // ==/UserScript==
 
 /***************** IMPORTANT!!! ********************
@@ -136,11 +137,14 @@ just spewing all the media out.
       .includes("Movies") &&
     !window.location.href.includes("movielist")
   ) {
-    $(/*html*/ `
-      <a class="movie-dl" title='Add movie to download queue'>
-        <svg width="21" height="21" viewBox="0 0 24 24" style="margin: 10px; transform: scale(1.5); cursor: pointer;" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="square" stroke-linejoin="arcs"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path></svg>
-      </a>
-    `).prependTo($(".thumbnail img").parent());
+    console.log($(".thumbnail img").attr('src'))
+    if (!$(".thumbnail img").attr('src').includes("/tv/")) {
+      $(/*html*/ `
+        <a class="movie-dl" title='Add movie to download queue'>
+          <svg width="21" height="21" viewBox="0 0 24 24" style="margin: 10px; transform: scale(1.5); cursor: pointer;" fill="none" stroke="#8899a4" stroke-width="2" stroke-linecap="square" stroke-linejoin="arcs"><path d="M3 15v4c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-4M17 9l-5 5-5-5M12 12.8V2.5"></path></svg>
+        </a>
+      `).prependTo($(".thumbnail img").parent());
+    }
   }
 
   // onclick for when you wanna download only a movie
@@ -166,10 +170,10 @@ just spewing all the media out.
     });
   }
 
-  console.log(GM_getValue("downloadQueue"));
+
 
   // if we're in the process of collecting links
-  if (GM_getValue("isDownloading")) {
+  if (GM_getValue("isDownloading") && GM_getValue("downloadQueue").length) {
     // resets downloads for testing purposes
     if (GM_getValue("downloads").length > $(".dlqueue ul").children().length) {
       GM_setValue("downloads", []);
