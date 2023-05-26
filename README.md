@@ -44,12 +44,11 @@ ___
   <img src="https://user-images.githubusercontent.com/48573618/205461407-de859dba-4359-454f-932c-a9bdb408c0ea.png" width="70%"/>
 </p>
 
-<p align="center">When you are ready, pressing the download button will briefly navigate to the url for each item in the queue in order to get the source url for the video. After this, the content will begin downloading to a new folder in your default download location.</p>
+<p align="center">Pressing the download button will briefly open each episode in a new background tab in order to grab the source url for the video. After this, the extra tabs will close and the media will begin downloading to a new folder in your default download location.</p>
 
 
 
 ## Stuff I will fix
 
 - Make it work on other soap2day domains
-- Clean up the GM_getValue and GM_setValues (hopefully making it less buggy)
 - Make a way to remove items from the queue
