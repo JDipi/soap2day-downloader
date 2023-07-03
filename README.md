@@ -1,6 +1,8 @@
 # soap2day-downloader
 
-## Chrome Extension coming soon!!
+Sadly, soap2day has been shut down :( It was great while it lasted!
+
+## ~~Chrome Extension coming soon!!~~
 
 
 ## By JDipi
